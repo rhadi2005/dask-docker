@@ -1,0 +1,8 @@
+pandas
+numpy
+gcsfs
+pyarrow
+matplotlib
+jupyter-server-proxy
+s3fs
+

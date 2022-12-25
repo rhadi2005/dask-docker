@@ -25,8 +25,20 @@ RUN mamba install -y \
     && find /opt/conda/lib/python*/site-packages/bokeh/server/static -type f,l -name '*.js' -not -name '*.min.js' -delete \
     && rm -rf /opt/conda/pkgs
 
+RUN mkdir -p /opt/app && \
+    mkdir -p /opt/workspace
+
+COPY requirements.txt /opt/app/
+RUN /opt/conda/bin/conda init bash && \
+    source /root/.bashrc && \ 
+    /opt/conda/bin/conda env list && \
+#    /opt/conda/bin/conda activate base && \
+    /opt/conda/bin/conda install -y -c conda-forge --file /opt/app/requirements.txt
+
 COPY prepare.sh /usr/bin/prepare.sh
+#COPY environment.yml /opt/app/environment.yml
 
-RUN mkdir /opt/app
+EXPOSE 8786-8787
 
+WORKDIR /opt/workspace
 ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]

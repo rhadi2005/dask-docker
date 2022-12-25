@@ -89,7 +89,7 @@ cd build
 docker buildx bake --progress=plain --set *.platform=linux/arm64,linux/amd64 --push docker-stacks-foundation
 docker buildx bake --progress=plain --set *.platform=linux/arm64,linux/amd64 --push
 
-# If you don'tset DOCKERUSER to your dockerhub username.
+# If you don't set DOCKERUSER to your dockerhub username.
 export DOCKERUSER=holdenk
 docker buildx bake --progress=plain --set *.platform=linux/arm64,linux/amd64 --set docker-stacks-foundation.tags.image=${DOCKERUSER}/docker-stacks-foundation:lab-py38 --push docker-stacks-foundation
 docker buildx bake --progress=plain --set *.platform=linux/arm64,linux/amd64 --set scheduler.tags=${DOCKERUSER}/dask --set worker.tags=${DOCKERUSER}/dask --set notebook.tags=${DOCKERUSER}/dask-notebook --set docker-stacks-foundation.tags=${DOCKERUSER}/docker-stacks-foundation:lab-py38 --set notebook.args.base=${DOCKERUSER} --push

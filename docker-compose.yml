@@ -2,22 +2,66 @@ version: "3.1"
 
 services:
   scheduler:
-    image: ghcr.io/dask/dask:latest
+    #image: ghcr.io/dask/dask:latest
+    image: rhadi2005/dask-dask:latest
     hostname: scheduler
+    volumes:
+      #- ./workspace:/opt/workspace
+      - ./workspace:/home/jovyan/workspace
     ports:
       - "8786:8786"
       - "8787:8787"
-    command: ["dask-scheduler"]
+    command: ["dask", "scheduler"]
 
-  worker:
-    image: ghcr.io/dask/dask:latest
-    command: ["dask-worker", "tcp://scheduler:8786"]
+  worker1:
+    #image: ghcr.io/dask/dask:latest
+    image: rhadi2005/dask-dask:latest
+    volumes:
+      #- ./workspace:/opt/workspace  
+      - ./workspace:/home/jovyan/workspace
+    command: ["dask", "worker", "tcp://scheduler:8786"]
     # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
-    deploy:
-      replicas: 2
+    # deploy:
+    #   replicas: 2
+
+  worker2:
+    #image: ghcr.io/dask/dask:latest
+    image: rhadi2005/dask-dask:latest
+    volumes:
+      #- ./workspace:/opt/workspace  
+      - ./workspace:/home/jovyan/workspace
+    command: ["dask", "worker", "tcp://scheduler:8786"]
+    # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
+    # deploy:
+    #   replicas: 2
+
+  worker3:
+    #image: ghcr.io/dask/dask:latest
+    image: rhadi2005/dask-dask:latest
+    volumes:
+     #- ./workspace:/opt/workspace  
+      - ./workspace:/home/jovyan/workspace
+    command: ["dask", "worker", "tcp://scheduler:8786"]
+    # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
+    # deploy:
+    #   replicas: 2
+
+  worker4:
+    #image: ghcr.io/dask/dask:latest
+    image: rhadi2005/dask-dask:latest
+    volumes:
+     #- ./workspace:/opt/workspace  
+      - ./workspace:/home/jovyan/workspace
+    command: ["dask", "worker", "tcp://scheduler:8786"]
+    # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
+    # deploy:
+    #   replicas: 2
 
   notebook:
-    image: ghcr.io/dask/dask-notebook:latest
+    #image: ghcr.io/dask/dask-notebook:latest
+    image: rhadi2005/dask-notebook:latest
+    volumes:
+      - ./workspace:/home/jovyan/workspace  
     ports:
       - "8888:8888"
     environment:

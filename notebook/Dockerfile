@@ -10,7 +10,8 @@ USER root
 ENV PYTHON_VERSION=${python}
 ENV DASK_VERSION=${release}
 
-RUN echo "jovyan ALL = NOPASSWD : /usr/bin/apt-get , /usr/bin/apt" >> /etc/sudoers
+#/etc/sudoers
+RUN echo "${NB_USER} ALL = NOPASSWD : /usr/bin/apt-get , /usr/bin/apt" >> /etc/sudoers
 
 RUN apt-get update \
     && apt-get install -yq --no-install-recommends curl graphviz git \
@@ -24,6 +25,9 @@ RUN MAGICARCH=$(dpkg --print-architecture) && \
     mv ./kubectl /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
     kubectl version --client
+
+RUN mkdir -p /opt/app
+COPY requirements.txt /opt/app/
 
 USER $NB_USER
 
@@ -49,12 +53,20 @@ RUN mamba install -y \
     && (find /opt/conda/lib/python*/site-packages/bokeh/server/static -type f,l -name '*.js' -not -name '*.min.js' -delete || echo "no bokeh static files to cleanup") \
     && rm -rf /opt/conda/pkgs
 
+RUN /opt/conda/bin/conda init bash && \
+    source .bashrc && \ 
+    /opt/conda/bin/conda env list && \
+#    /opt/conda/bin/conda activate base && \
+    /opt/conda/bin/conda install -y -c conda-forge --file /opt/app/requirements.txt
+
 EXPOSE 8888
 
 # jupyter server config pulled from upstream `base-notebook`
 ADD https://raw.githubusercontent.com/jupyter/docker-stacks/main/base-notebook/jupyter_server_config.py /etc/jupyter/jupyter_server_config.py
 
+
 USER root
+
 
 # legacy jupyter notebook server support pulled from upstream `base-notebook`
 RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
@@ -63,7 +75,7 @@ RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
 
 # Create the /opt/app directory, and assert that Jupyter's NB_UID/NB_GID values
 # haven't changed.
-RUN mkdir /opt/app \
+RUN mkdir -p /opt/app \
     && if [ "$NB_UID" != "1000" ] || [ "$NB_GID" != "100" ]; then \
     echo "Jupyter's NB_UID/NB_GID changed, need to update the Dockerfile"; \
     exit 1; \
@@ -78,6 +90,9 @@ COPY prepare.sh /usr/bin/prepare.sh
 HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
     http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
+
+RUN  mkdir -p /home/$NB_USER/workspace && \
+     chown $NB_USER:$NB_GID -R /home/$NB_USER/workspace
 
 USER $NB_USER
 
