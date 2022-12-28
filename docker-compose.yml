@@ -8,9 +8,12 @@ services:
     volumes:
       #- ./workspace:/opt/workspace
       - ./workspace:/home/jovyan/workspace
+      - /home/cloud/dataset:/home/cloud/dataset
     ports:
       - "8786:8786"
       - "8787:8787"
+    #restart: no, always, on-failure, unless-stopped
+    restart: unless-stopped
     command: ["dask", "scheduler"]
 
   worker1:
@@ -19,7 +22,11 @@ services:
     volumes:
       #- ./workspace:/opt/workspace  
       - ./workspace:/home/jovyan/workspace
-    command: ["dask", "worker", "tcp://scheduler:8786"]
+      - /home/cloud/dataset:/home/cloud/dataset
+    restart: unless-stopped
+    extra_hosts:
+      - "ecs-python2:10.50.0.194"
+    command: ["dask", "worker", "tcp://ecs-master:8786"]
     # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
     # deploy:
     #   replicas: 2
@@ -30,10 +37,12 @@ services:
     volumes:
       #- ./workspace:/opt/workspace  
       - ./workspace:/home/jovyan/workspace
+      - /home/cloud/dataset:/home/cloud/dataset
     command: ["dask", "worker", "tcp://scheduler:8786"]
     # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
     # deploy:
     #   replicas: 2
+    #   restart_policy: unless-stopped
 
   worker3:
     #image: ghcr.io/dask/dask:latest
@@ -41,6 +50,7 @@ services:
     volumes:
      #- ./workspace:/opt/workspace  
       - ./workspace:/home/jovyan/workspace
+      - /home/cloud/dataset:/home/cloud/dataset
     command: ["dask", "worker", "tcp://scheduler:8786"]
     # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
     # deploy:
@@ -52,6 +62,7 @@ services:
     volumes:
      #- ./workspace:/opt/workspace  
       - ./workspace:/home/jovyan/workspace
+      - /home/cloud/dataset:/home/cloud/dataset
     command: ["dask", "worker", "tcp://scheduler:8786"]
     # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
     # deploy:
@@ -62,6 +73,7 @@ services:
     image: rhadi2005/dask-notebook:latest
     volumes:
       - ./workspace:/home/jovyan/workspace  
+      - /home/cloud/dataset:/home/cloud/dataset
     ports:
       - "8888:8888"
     environment:
