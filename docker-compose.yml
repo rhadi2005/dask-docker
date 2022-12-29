@@ -26,7 +26,7 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "ecs-python2:10.50.0.194"
-    command: ["dask", "worker", "tcp://ecs-master:8786"]
+    command: ["dask", "worker", "tcp://scheduler:8786"]
     # For Docker swarm you can specify multiple workers, this is ignored by `docker-compose up`
     # deploy:
     #   replicas: 2
